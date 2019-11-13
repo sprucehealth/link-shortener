@@ -99,7 +99,7 @@ else {
 				<span class="note">Note: First row will be ignored as column names.</span>
 			</p>
 			<p>
-				<input type="submit" value="Upload">
+				<input type="submit" value="Add Links">
 			</p>
 		</form>
 		<hr>

@@ -25,11 +25,26 @@ if (isset($_POST["path"]) and isset($_POST["target"]) and isset($_POST["owner"])
 	$submittedlinks[0]["owner"] = $_POST["owner"];
 	$submittedlinks[0]["notes"] = $_POST["notes"];
 }
-// if CSV of link info has been submitted, record it
+// if CSV of link info has been submitted, process it
 elseif (isset($_FILES["csvfile"]) and $_FILES["csvfile"]["error"] == 0) {
-	echo "<p>file uploaded, not supported yet, but i see you</p>";
-	echo "<pre>";
-	echo print_r($_FILES)."</pre>";
+	// read uploaded file into array
+	$csvlinks = array_map("str_getcsv", file($_FILES["csvfile"]["tmp_name"], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
+
+	// process row uploaded CSV info and add to submittedlinks array
+	// intentionally ignore first row (column names)
+	for ($i=1; $i < count($csvlinks); $i++) {
+		// row must have exactly four items; skip if it doesn't
+		if (count($csvlinks[$i]) == 4) {
+			// create array of current link info
+			$csvlink["path"] = $csvlinks[$i][0];
+			$csvlink["target"] = $csvlinks[$i][1];
+			$csvlink["notes"] = $csvlinks[$i][2];
+			$csvlink["owner"] = $csvlinks[$i][3];
+
+			// add link to submittedlinks array
+			$submittedlinks[] = $csvlink;
+		}
+	}
 }
 
 // process submitted link info and add each link to db if valid
