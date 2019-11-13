@@ -75,11 +75,11 @@ foreach ($submittedlinks as $link) {
 
 				// add new link to db and say successful if successful
 				if ($db->query("insert into links (path, target, notes, createdby, owner) values ($path, $target, $notes, $createdby, $owner)") === true) {
-					echo "Link for \"".htmlentities($link["path"])."\" added successfully.<br />";
+					echo "Link for path \"".htmlentities($link["path"])."\" added successfully.<br />";
 				}
 				else echo "Sorry, something unknown went wrong adding the link.<br />";
 			}
-			else echo "An active link with that path already exists.<br />";
+			else echo "An active link with path \"".htmlentities($link["path"])."\" already exists.<br />";
 		}
 		else echo "Invalid URL target specified.<br />";
 	}
