@@ -15,51 +15,61 @@ if ($user["accesslevel"] == 0) {
 // start page output
 require "include_first.php";
 
-// check if path and target have been specified and are valid
-if (isset($_POST["path"]) and isset($_POST["target"])
-	and filter_var($_POST["target"], FILTER_VALIDATE_URL) and preg_match('/^[a-zA-Z0-9_-]+$/', $_POST["path"])
-	and strlen($_POST["path"]) < 256 and strlen($_POST["target"]) < 2001) {
+// create array to hold submitted link info
+$submittedlinks = array();
 
-	$path = $quote->$_POST["path"];
-	$target = $quote->$_POST["target"];
-
-	// see if this path is already in use
-	$pathcheck = $db->query("select id from links where path=$path and active is true");
-
-	if (!$pathcheck->num_rows) {
-		// prep variables for db entry
-		$createdby = $quote->$user["id"];
-
-		// if owner is specified and is user's ID or one of their groups, then use it
-		if (isset($_POST["owner"]) and ($_POST["owner"] == $user["id"] or in_array($_POST["owner"], $user["memberships"]))) {
-			$owner = $quote->$_POST["owner"];
-		}
-		// else, default owner is the creator
-		else {
-			$owner = $createdby;
-		}
-
-		// if notes content exists, use it
-		if (isset($_POST["notes"])) {
-			$notes = $quote->$_POST["notes"];
-		}
-		else {
-			$notes = "";
-		}
-
-		// add new link to db and say successful if successful
-		if ($db->query("insert into links (path, target, notes, createdby, owner) values ($path, $target, $notes, $createdby, $owner)") === true) {
-			echo "<p>Link for \"".htmlentities($_POST["path"])."\" added!</p>";
-		}
-		// if unsuccessful, say so
-		else {
-			echo "<p>Sorry, something unknown went wrong adding your link.</p>";
-		}
-	}
-	else echo "<p>Sorry, an active Spruce link with that path already exists.</p>";
-	
+// if info for one single link has been submitted, record it
+if (isset($_POST["path"]) and isset($_POST["target"]) and isset($_POST["owner"]) and isset($_POST["notes"])) {
+	$submittedlinks[0]["path"] = $_POST["path"];
+	$submittedlinks[0]["target"] = $_POST["target"];
+	$submittedlinks[0]["owner"] = $_POST["owner"];
+	$submittedlinks[0]["notes"] = $_POST["notes"];
 }
-else echo "<p>Sorry, something was wrong with your desired Spruce link or URL target.</p>";
+// if CSV of link info has been submitted, record it
+elseif (isset($_FILES["csvfile"]) and $_FILES["csvfile"]["error"] == 0) {
+	echo "<p>file uploaded, not supported yet, but i see you</p>";
+	echo "<pre>";
+	echo print_r($_FILES)."</pre>";
+}
+
+// process submitted link info and add each link to db if valid
+foreach ($submittedlinks as $link) {
+	// check if path is valid
+	if (preg_match('/^[a-zA-Z0-9_-]+$/', $link["path"]) and strlen($link["path"]) < 256) {
+		// check if target is valid
+		if (filter_var($link["target"], FILTER_VALIDATE_URL) and strlen($link["target"]) < 2001) {
+			// prep path, target, and notes for db use
+			$path = $quote->$link["path"];
+			$target = $quote->$link["target"];
+			$notes = $quote->$link["notes"];
+
+			// see if this path is already in use
+			$pathcheck = $db->query("select id from links where path=$path and active is true");
+
+			// if the path is not in active use, attempt to add the link to db
+			if (!$pathcheck->num_rows) {
+				// assign current user as creator of the link
+				$createdby = $quote->$user["id"];
+
+				// if owner is specified and is user's ID or one of their groups, then use it
+				if ($link["owner"] == $user["id"] or in_array($link["owner"], $user["memberships"])) {
+					$owner = $quote->$link["owner"];
+				}
+				// else, default owner is the creator
+				else $owner = $createdby;
+
+				// add new link to db and say successful if successful
+				if ($db->query("insert into links (path, target, notes, createdby, owner) values ($path, $target, $notes, $createdby, $owner)") === true) {
+					echo "Link for \"".htmlentities($link["path"])."\" added successfully.<br />";
+				}
+				else echo "Sorry, something unknown went wrong adding the link.<br />";
+			}
+			else echo "An active link with that path already exists.<br />";
+		}
+		else echo "Invalid URL target specified.<br />";
+	}
+	else echo "Invalid path specified.<br />";
+}
 ?>
 
 <p>

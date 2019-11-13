@@ -89,6 +89,20 @@ else {
 			<input type="submit" value="Add Link">
 		</form>
 		<hr>
+		<h1>
+			Bulk Add
+		</h1>
+		<form action="admin_link_add.php" method="post" enctype="multipart/form-data">
+			<p>
+				<strong>CSV file:</strong>
+				<input type="file" name="csvfile" accept=".csv"><br />
+				<span class="note">Note: First row will be ignored as column names.</span>
+			</p>
+			<p>
+				<input type="submit" value="Upload">
+			</p>
+		</form>
+		<hr>
 		<?
 	}
 	?>
