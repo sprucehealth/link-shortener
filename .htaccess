@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} !^/admin\.php$
+    RewriteCond %{REQUEST_URI} !^/admin_link_add\.php$
+    RewriteCond %{REQUEST_URI} !^/admin_link_info\.php$
+    RewriteCond %{REQUEST_URI} !^/admin_link_list\.php$
+    RewriteCond %{REQUEST_URI} !^/admin_link_modify_activity\.php$
+    RewriteCond %{REQUEST_URI} !^/admin_user_modify_accesslevel\.php$
+    RewriteCond %{REQUEST_URI} !^/auth\.php$
+    RewriteCond %{REQUEST_URI} !^/test\.php$
+    RewriteCond %{REQUEST_URI} !^/style\.css$
+    RewriteCond %{REQUEST_URI} !^/jquery-3-4-1-min\.js$
+    RewriteRule ^.*$ redir.php
+</IfModule>
