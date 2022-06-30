@@ -22,6 +22,17 @@ if (isset($_GET["start_offset"]) and is_int((int)$_GET["start_offset"]) and $_GE
 	$start_offset = (int)$_GET["start_offset"];
 }
 
+// default is to order links first by path alphabetically, and then by date created (newest first)
+$order_by = "pathasc";
+$order_by_sql = "l.path asc, l.created desc";
+
+// if order by date is specified, order links by date created (newest first)
+// this has the downside of not keeping link groups (i.e., those with same path, where 1+ are inactive) together, but it's useful for some purposes
+if (isset($_GET["order_by"]) and $_GET["order_by"] == "datedesc") {
+	$order_by = "datedesc";
+	$order_by_sql = "l.created desc";
+}
+
 // get count of matching links
 $number_of_links = $db->query("select id from links")->num_rows;
 
@@ -31,6 +42,7 @@ $links = $db->query("
 		l.id,
 		l.path,
 		l.target,
+		l.created,
 		l.notes,
 		e.email as createdby,
 		l.owner,
@@ -42,7 +54,7 @@ $links = $db->query("
 		links as l
 		inner join entities as e on l.createdby = e.id
 		inner join entities as o on l.owner = o.id
-	order by l.path asc, l.created desc
+	order by " . $order_by_sql . "
 	limit $links_per_page offset $start_offset
 	");
 
@@ -66,7 +78,7 @@ require "include_first.php";
 
 			// output page number
 			if ($i == $current_page) echo "<strong>$i</strong> ";
-			else echo "<a href=\"?links_per_page=$links_per_page&start_offset=$link_offset\">$i</a> ";
+			else echo "<a href=\"?links_per_page=$links_per_page&start_offset=$link_offset&order_by=$order_by\">$i</a> ";
 		}
 		?><br />
 	<span class="note">Note: Click any linked "hits" count for full link and hit information.</span>
@@ -77,12 +89,13 @@ if ($links->num_rows) {
 	?>
 	<table>
 		<tr>
-			<th>Spruce Link</th>
+			<th>Spruce Link <a href="admin_link_list.php">&darr;</a></th>
 			<th>Target URL</th>
 			<th>Hits</th>
 			<th>Notes</th>
 			<th>Created By</th>
 			<th>Owner</th>
+			<th class="no-break">Created <a href="admin_link_list.php?order_by=datedesc">&darr;</a></th>
 			<th>Active</th>
 		</tr>
 		<?
@@ -103,6 +116,7 @@ if ($links->num_rows) {
 				<td style="width: 10%"><? echo htmlentities($row["notes"]); ?></td>
 				<td><? echo htmlentities($row["createdby"]); ?></td>
 				<td><? echo htmlentities($row["owner_name"]); ?></td>
+				<td><? echo htmlentities(date("n/j/y", strtotime($row["created"]))); ?></td>
 				<td>
 					<?
 					// if user owns this link (or belongs to group that does) and they are not deactivated then show modifiable activity slider
@@ -148,7 +162,7 @@ else {
 
 			// output page number
 			if ($i == $current_page) echo "<strong>$i</strong> ";
-			else echo "<a href=\"?links_per_page=$links_per_page&start_offset=$link_offset\">$i</a> ";
+			else echo "<a href=\"?links_per_page=$links_per_page&start_offset=$link_offset&order_by=$order_by\">$i</a> ";
 		}
 		?>
 </p>
