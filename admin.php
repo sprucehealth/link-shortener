@@ -48,7 +48,7 @@ if (!isset($user)) {
 else {
 	?>
 	<p>
-		Hi, <? echo $user["name"] ?>. You are logged in.
+		Hi, <? echo $user["name"] ?>. You are logged in. New: <a href="admin_marketing_linkmaker.php">Marketing Linkmaker</a>.
 	</p>
 	<hr>
 	<?
