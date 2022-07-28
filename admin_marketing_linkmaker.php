@@ -3,7 +3,7 @@ require "admin_functions.php";
 
 // halt if they're not logged in
 if (!isset($user)) {
-	header("Location: https://www.sprucehealth.com/");
+	header("Location: https://l.sprucehealth.com/admin.php");
 	exit();
 }
 
