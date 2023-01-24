@@ -198,7 +198,7 @@ require "include_first.php";
 			</td>
 			<td>
 				<p>
-					Send to mobile web app<br />
+					<s>Send to mobile web app</s><br />
 					<span class="note">Note: This is disabled, as we don't allow Android users to use the mobile web app at all</span>
 				</p>
 			</td>
