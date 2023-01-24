@@ -8,66 +8,83 @@ if (!isset($user)) {
 }
 
 // handle ajax POST request to generate a link, if POST data present for such a request
-if (isset($_POST["behavior_mobile"]) and isset($_POST["behavior_desktop"]) and isset($_POST["customurl"])
+if (isset($_POST["user_ios"]) and isset($_POST["user_android"]) and isset($_POST["user_desktop"])
+	and isset($_POST["customurl_ios"]) and isset($_POST["customurl_android"]) and isset($_POST["customurl_desktop"])
 	and isset($_POST["utm_source"]) and isset($_POST["utm_medium"]) and isset($_POST["utm_campaign"])
 	and isset($_POST["utm_term"]) and isset($_POST["utm_content"])) {
 
-	// start with blank generated link
-	$generatedlink = "";
+	// start with base branch-link default
+	$generatedlink = "https://b.sprucehealth.com/a/key_live_efa4orVqdwidlgkisKcXZkghqrcYN8Mw";
 
-	// record base branch-link default
-	$basebranchlink = "https://bnc.spruce.app/a/key_live_efa4orVqdwidlgkisKcXZkghqrcYN8Mw";
+	// start assuming that there will be no failure to report
+	$failflag = false;
 
 	// start array of URL query parameters
 	$queryparams = array();
-	if (strlen($_POST["utm_source"])) $queryparams["utm_source"] = $_POST["utm_source"];
-	if (strlen($_POST["utm_medium"])) $queryparams["utm_medium"] = $_POST["utm_medium"];
-	if (strlen($_POST["utm_campaign"])) $queryparams["utm_campaign"] = $_POST["utm_campaign"];
-	if (strlen($_POST["utm_term"])) $queryparams["utm_term"] = $_POST["utm_term"];
-	if (strlen($_POST["utm_content"])) $queryparams["utm_content"] = $_POST["utm_content"];
+	if (strlen($_POST["utm_source"])) $queryparams["utm_source"] = htmlentities($_POST["utm_source"]);
+	if (strlen($_POST["utm_medium"])) $queryparams["utm_medium"] = htmlentities($_POST["utm_medium"]);
+	if (strlen($_POST["utm_campaign"])) $queryparams["utm_campaign"] = htmlentities($_POST["utm_campaign"]);
+	if (strlen($_POST["utm_term"])) $queryparams["utm_term"] = htmlentities($_POST["utm_term"]);
+	if (strlen($_POST["utm_content"])) $queryparams["utm_content"] = htmlentities($_POST["utm_content"]);
 
-	// if mobile behavior is "send to app store"
-	if ($_POST["behavior_mobile"] == "true") {
-		// if desktop behavior is "send to web app"
-		if ($_POST["behavior_desktop"] == "true") {
-			// use branch link with no desktop_url appended
-
-			// start with base branch link
-			$generatedlink = $basebranchlink;
-
-			// if query parameters present, append them
-			if (count($queryparams)) $generatedlink = $generatedlink . "?" . http_build_query($queryparams);
+	// /////////////////////////////////////
+	// calculate iOS query param
+	// /////////////////////////////////////
+	// if user_ios == 1, then do not set the ios_url parameter (i.e., use the Branch default behavior of sending the user to the app store)
+	// if user_ios == 2, send to mobile web app
+	if ($_POST["user_ios"] == 2) $queryparams["\$ios_url"] = htmlentities("https://app.sprucehealth.com/");
+	// if user_ios == 3, send to marketing website
+	if ($_POST["user_ios"] == 3) $queryparams["\$ios_url"] = htmlentities("https://www.sprucehealth.com/");
+	// if user_ios == 4, send to custom url
+	if ($_POST["user_ios"] == 4) {
+		// validate custom ios url
+		if (filter_var($_POST["customurl_ios"], FILTER_VALIDATE_URL)) {
+			$queryparams["\$ios_url"] = htmlentities($_POST["customurl_ios"]);
 		}
-		// if desktop behavior is "send to custom url"
-		else {
-			// use branch link with desktop_url appended
-
-			// start with base branch link
-			$generatedlink = $basebranchlink;
-
-			// add $desktop_url query parameter if customurl is present and is a valid URL
-			if (filter_var($_POST["customurl"], FILTER_VALIDATE_URL)) $queryparams["\$desktop_url"] = $_POST["customurl"];
-
-			// if query parameters present, append them
-			if (count($queryparams)) $generatedlink = $generatedlink . "?" . http_build_query($queryparams);
-		}
+		else $failflag = "Your custom iOS URL is invalid.";
 	}
-	// if mobile behavior is "send to custom url"
-	else {
-		// generate fully custom url
-		
-		// if customurl is present and is a valid URL, use it
-		if (filter_var($_POST["customurl"], FILTER_VALIDATE_URL)) {
-			$generatedlink = $_POST["customurl"];
 
-			// if query parameters present, append them
-			// note: right now, this will screw up if the custom URL already has a query string
-			if (count($queryparams)) $generatedlink = $generatedlink . "?" . http_build_query($queryparams);
+	// /////////////////////////////////////
+	// calculate Android query param
+	// /////////////////////////////////////
+	// if user_android == 1, then do not set the android_url parameter (i.e., use the Branch default behavior of sending the user to the play store)
+	// if user_android == 2, then do not set the android_url parameter, as this should never be the case, because android users can't use mobile web
+	// if user_android == 3, send to marketing website
+	if ($_POST["user_android"] == 3) $queryparams["\$android_url"] = htmlentities("https://www.sprucehealth.com/");
+	// if user_android == 4, send to custom url
+	if ($_POST["user_android"] == 4) {
+		// validate custom android url
+		if (filter_var($_POST["customurl_android"], FILTER_VALIDATE_URL)) {
+			$queryparams["\$android_url"] = htmlentities($_POST["customurl_android"]);
 		}
-		// else, report an error
-		else {
-			$generatedlink = "Your custom URL is invalid.";
+		else $failflag = "Your custom Android URL is invalid.";
+	}
+
+	// /////////////////////////////////////
+	// calculate desktop (web) query param
+	// /////////////////////////////////////
+	// if user_desktop == 1, send to web app
+	if ($_POST["user_desktop"] == 1) $queryparams["\$desktop_url"] = htmlentities("https://app.sprucehealth.com/");
+	// if user_desktop == 2, then do not set the desktop_url parameter (i.e., use the Branch default behavior of sending the user to the marketing website)
+	// if ($_POST["user_desktop"] == 2) $queryparams["\$desktop_url"] = htmlentities("https://www.sprucehealth.com/");
+	// if user_desktop == 3, send to custom url
+	if ($_POST["user_desktop"] == 3) {
+		// validate custom desktop url
+		if (filter_var($_POST["customurl_desktop"], FILTER_VALIDATE_URL)) {
+			$queryparams["\$desktop_url"] = htmlentities($_POST["customurl_desktop"]);
 		}
+		else $failflag = "Your custom desktop (web) URL is invalid.";
+	}
+
+	// generate final link
+	// first check for custom URL failure
+	if ($failflag) {
+		$generatedlink = $failflag;
+	}
+	// otherwise, finish generating the link
+	else {
+		// if query parameters are present, append them
+		if (count($queryparams)) $generatedlink = $generatedlink . "?" . http_build_query($queryparams);
 	}
 
 	echo $generatedlink;
@@ -146,7 +163,8 @@ require "include_first.php";
 			<td>
 				<p>
 					Send to a custom URL:
-					<input type="text" name="customurl_ios" style="width: 100%;" />
+					<input type="text" name="customurl_ios" style="width: 100%;" /><br />
+					<span class="note">Note: Any UTM parameters are likely to be lost by the time of account creation if you send users to a custom URL that isn't part of the marketing website</span>
 				</p>
 			</td>
 		</tr>
@@ -167,7 +185,7 @@ require "include_first.php";
 			</td>
 			<td style="width: 100%;">
 				<p>
-					Send to App Store or open app if already installed
+					Send to Google Play Store or open app if already installed
 				</p>
 			</td>
 		</tr>
@@ -188,7 +206,7 @@ require "include_first.php";
 		<tr>
 			<td>
 				<label class="niceradio">
-					<input type="radio" name="user_android" value="3" disabled="disabled">
+					<input type="radio" name="user_android" value="3">
 					<span>&nbsp;</span>
 				</label>
 			</td>
@@ -201,7 +219,7 @@ require "include_first.php";
 		<tr>
 			<td>
 				<label class="niceradio">
-					<input type="radio" name="user_android" value="4" disabled="disabled">
+					<input type="radio" name="user_android" value="4">
 					<span>&nbsp;</span>
 				</label>
 			</td>
@@ -331,50 +349,19 @@ require "include_first.php";
 </div>
 
 <script>
-	// handle various slider changes
-	$( "input[type=checkbox]" )
-	.change(function () {
-		// if the mobile-behavior slider has become unchecked
-		if ($( this ).attr('name') == 'behavior_mobile' && !$( this ).prop('checked')) {
-			// also uncheck the desktop-behavior slider
-			$( "input[name='behavior_desktop']" ).prop('checked', false);
-
-			// disable the desktop-behavior slider (make it read-only)
-			$( "input[name='behavior_desktop']" ).prop('disabled', true);
-
-			// show the custom-URL container
-			$( "[name='customurl_container']" ).show();
-		}
-
-		// if the mobile-behavior slider has become checked
-		if ($( this ).attr('name') == 'behavior_mobile' && $( this ).prop('checked')) {
-			// enable the desktop-behavior slider
-			$( "input[name='behavior_desktop']" ).prop('disabled', false);
-		}
-
-		// if the desktop-behavior slider has become unchecked
-		if ($( this ).attr('name') == 'behavior_desktop' && !$( this ).prop('checked')) {
-			// show the custom-URL container
-			$( "[name='customurl_container']" ).show();
-		}
-
-		// if the desktop-behavior slider has become checked
-		if ($( this ).attr('name') == 'behavior_desktop' && $( this ).prop('checked')) {
-			// hide the custom-URL container
-			$( "[name='customurl_container']" ).hide();
-		}
-	});
-
 	// handle request to generate a link
 	$( "#submitbutton" ).click(function () {
 		$.post(
 			// post data to the page to process in PHP because I don't feel like doing it in javascript
-			'admin_marketing_linkmaker.php',
+			'admin_marketing_linkmaker2.php',
 			// put data into an object to send in post action
 			{
-				behavior_mobile: $( "input[name='behavior_mobile']" ).prop('checked'),
-				behavior_desktop: $( "input[name='behavior_desktop']" ).prop('checked'),
-				customurl: $( "[name='customurl']" ).val(),
+				user_ios: $( "input[name='user_ios']:checked" ).val(),
+				user_android: $( "input[name='user_android']:checked" ).val(),
+				user_desktop: $( "input[name='user_desktop']:checked" ).val(),
+				customurl_ios: $( "[name='customurl_ios']" ).val(),
+				customurl_android: $( "[name='customurl_android']" ).val(),
+				customurl_desktop: $( "[name='customurl_desktop']" ).val(),
 				utm_source: $( "[name='utm_source']" ).val(),
 				utm_medium: $( "[name='utm_medium']" ).val(),
 				utm_campaign: $( "[name='utm_campaign']" ).val(),
