@@ -33,7 +33,10 @@ if (isset($_POST["user_ios"]) and isset($_POST["user_android"]) and isset($_POST
 	// /////////////////////////////////////
 	// if user_ios == 1, then do not set the ios_url parameter (i.e., use the Branch default behavior of sending the user to the app store)
 	// if user_ios == 2, send to mobile web app
-	if ($_POST["user_ios"] == 2) $queryparams["\$ios_url"] = "https://app.sprucehealth.com/";
+	if ($_POST["user_ios"] == 2) {
+		$queryparams["\$ios_url"] = "https://app.sprucehealth.com/signup";
+		$queryparams["\$web_only"] = "true";
+	}
 	// if user_ios == 3, send to marketing website
 	if ($_POST["user_ios"] == 3) $queryparams["\$ios_url"] = "https://www.sprucehealth.com/";
 	// if user_ios == 4, send to custom url
@@ -49,7 +52,11 @@ if (isset($_POST["user_ios"]) and isset($_POST["user_android"]) and isset($_POST
 	// calculate Android query param
 	// /////////////////////////////////////
 	// if user_android == 1, then do not set the android_url parameter (i.e., use the Branch default behavior of sending the user to the play store)
-	// if user_android == 2, then do not set the android_url parameter, as this should never be the case, because android users can't use mobile web
+	// if user_android == 2, send to mobile web app (even though android users can't use mobile web yet; will just redirect them to download the app for now)
+	if ($_POST["user_android"] == 2) {
+		$queryparams["\$android_url"] = "https://app.sprucehealth.com/signup";
+		$queryparams["\$web_only"] = "true";
+	}
 	// if user_android == 3, send to marketing website
 	if ($_POST["user_android"] == 3) $queryparams["\$android_url"] = "https://www.sprucehealth.com/";
 	// if user_android == 4, send to custom url
@@ -180,7 +187,7 @@ require "include_first.php";
 		<tr>
 			<td>
 				<label class="niceradio">
-					<input type="radio" name="user_android" value="1" checked="checked">
+					<input type="radio" name="user_android" value="1">
 					<span>&nbsp;</span>
 				</label>
 			</td>
@@ -193,14 +200,14 @@ require "include_first.php";
 		<tr>
 			<td>
 				<label class="niceradio">
-					<input type="radio" name="user_android" value="2" disabled="disabled">
+					<input type="radio" name="user_android" value="2" checked="checked">
 					<span>&nbsp;</span>
 				</label>
 			</td>
 			<td>
 				<p>
-					<s>Send to mobile web app</s><br />
-					<span class="note">Note: This is disabled, as we don't allow Android users to use the mobile web app at all</span>
+					Send to mobile web app<br />
+					<span class="note">Note: These Android users will still be immediately directed to download the app.</span>
 				</p>
 			</td>
 		</tr>
