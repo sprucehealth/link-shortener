@@ -11,5 +11,6 @@
     RewriteCond %{REQUEST_URI} !^/style\.css$
     RewriteCond %{REQUEST_URI} !^/jquery-3-4-1-min\.js$
     RewriteCond %{REQUEST_URI} !^/admin_marketing_linkmaker\.php$
+    RewriteCond %{REQUEST_URI} !^/admin_marketing_linkmaker2\.php$
     RewriteRule ^.*$ redir.php
 </IfModule>
