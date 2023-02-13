@@ -73,8 +73,8 @@ if (isset($_POST["user_ios"]) and isset($_POST["user_android"]) and isset($_POST
 	// /////////////////////////////////////
 	// if user_desktop == 1, send to web app
 	if ($_POST["user_desktop"] == 1) $queryparams["\$desktop_url"] = "https://app.sprucehealth.com/";
-	// if user_desktop == 2, then do not set the desktop_url parameter (i.e., use the Branch default behavior of sending the user to the marketing website)
-	// if ($_POST["user_desktop"] == 2) $queryparams["\$desktop_url"] = htmlentities("https://www.sprucehealth.com/");
+	// if user_desktop == 2, then set the desktop_url parameter
+	if ($_POST["user_desktop"] == 2) $queryparams["\$desktop_url"] = "https://www.sprucehealth.com/";
 	// if user_desktop == 3, send to custom url
 	if ($_POST["user_desktop"] == 3) {
 		// validate custom desktop url
@@ -390,6 +390,18 @@ require "include_first.php";
 	// handle request to copy a link
 	$( "#copybutton" ).click(function () {
 		navigator.clipboard.writeText($( "#generatedlink" ).text());
+	});
+
+	// clear generated link if any radio input changes
+	$( ".niceradio" ).change(function() {
+		$( "[name='generatedlink_container']" ).hide();
+		$( "#generatedlink" ).text('');
+	});
+
+	// clear generated link if any text input changes
+	$( "input[type='text']" ).change(function() {
+		$( "[name='generatedlink_container']" ).hide();
+		$( "#generatedlink" ).text('');
 	});
 </script>
 <?
