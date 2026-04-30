@@ -35,6 +35,7 @@ $hits = $db->query("
 		id,
 		link_id,
 		truepath,
+		incoming_query_string,
 		visited,
 		user_agent,
 		ip,
@@ -113,6 +114,7 @@ if ($link->num_rows) {
 				<tr>
 					<th>Hit ID</th>
 					<th>True Path</th>
+					<th>Incoming Query String</th>
 					<th>Visited</th>
 					<th>User Agent</th>
 					<th>IP</th>
@@ -129,6 +131,7 @@ if ($link->num_rows) {
 					<tr>
 						<td><? echo htmlentities($hitrow["id"]); ?></td>
 						<td><? echo htmlentities($hitrow["truepath"]); ?></td>
+						<td style="word-break: break-all;"><? echo htmlentities($hitrow["incoming_query_string"]); ?></td>
 						<td><? echo htmlentities($hitrow["visited"]); ?></td>
 						<td><? echo htmlentities($hitrow["user_agent"]); ?></td>
 						<td><? echo htmlentities($hitrow["ip"]); ?></td>
