@@ -54,9 +54,9 @@ foreach ($submittedlinks as $link) {
 		// check if target is valid
 		if (filter_var($link["target"], FILTER_VALIDATE_URL) and strlen($link["target"]) < 2001) {
 			// prep path, target, and notes for db use
-			$path = $quote->$link["path"];
-			$target = $quote->$link["target"];
-			$notes = $quote->$link["notes"];
+			$path = $quote->{$link["path"]};
+			$target = $quote->{$link["target"]};
+			$notes = $quote->{$link["notes"]};
 
 			// see if this path is already in use
 			$pathcheck = $db->query("select id from links where path=$path and active is true");
@@ -64,11 +64,11 @@ foreach ($submittedlinks as $link) {
 			// if the path is not in active use, attempt to add the link to db
 			if (!$pathcheck->num_rows) {
 				// assign current user as creator of the link
-				$createdby = $quote->$user["id"];
+				$createdby = $quote->{$user["id"]};
 
 				// if owner is specified and is user's ID or one of their groups, then use it
 				if ($link["owner"] == $user["id"] or in_array($link["owner"], $user["memberships"])) {
-					$owner = $quote->$link["owner"];
+					$owner = $quote->{$link["owner"]};
 				}
 				// else, default owner is the creator
 				else $owner = $createdby;
