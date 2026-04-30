@@ -149,9 +149,14 @@ function spruceReportAttribution(string $requestUrl, string $cookieHeader): void
             }
         }
 
-        // get the visitor's IP address and append it to our attribution-data $values to record
+        // Pass the user's real IP through as `ip_address`. Without this, the
+        // backend would record l.sprucehealth.com's NAT egress IP (msg-api sees
+        // us as the immediate client, not the user). The associateAttribution
+        // resolver skips its own server-side `ip_address` append when the caller
+        // already supplied one, so there's no duplicate row in the attributions
+        // table. See sprucehealth/backend#15769 for the resolver behavior.
         $visitorIp = $_SERVER['REMOTE_ADDR'] ?? '';
-        $values[] = ['key' => 'ip_address_real', 'value' => $visitorIp];
+        $values[] = ['key' => 'ip_address', 'value' => $visitorIp];
 
         // JSON_INVALID_UTF8_SUBSTITUTE replaces invalid UTF-8 byte sequences
         // (e.g. a query value of "%FF" decoded to raw byte 0xFF) with U+FFFD
