@@ -13,7 +13,7 @@ if (isset($_GET["link_id"]) and isset($_GET["active"])
 
 	// get info of specified link
 	// including figuring out if there is already an active link that shares this specified link's path (an "active_duplicate"); there should only be one active link per path at a time
-	$link_id = $quote->$_GET["link_id"];
+	$link_id = $quote->{$_GET["link_id"]};
 
 	$link = $db->query("
 		select
@@ -66,7 +66,7 @@ if (isset($_GET["link_id"]) and isset($_GET["active"])
 			$change_type = $activity == "true" ? "'activated'" : "'deactivated'";
 
 			// get user id
-			$user_id = $quote->$user["id"];
+			$user_id = $quote->{$user["id"]};
 
 			// add audit record
 			$db->query("insert into link_modifications (link_id, modifier_entity_id, change_type) values ($link_id, $user_id, $change_type)");
