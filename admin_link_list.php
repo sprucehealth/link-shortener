@@ -33,10 +33,7 @@ if (isset($_GET["order_by"]) and $_GET["order_by"] == "datedesc") {
 	$order_by_sql = "l.created desc";
 }
 
-// get count of matching links
-// $result = $db->query("select count(*) from links");
-// $row = $result->fetch_row();
-// $number_of_links = (int)$row;
+// get count of links
 $number_of_links = (int) $db->query("select count(*) from links")->fetch_column();
 $debugvar .= "fox ".$number_of_links."\\n"; // debug tracer
 
