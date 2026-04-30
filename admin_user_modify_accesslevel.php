@@ -17,7 +17,7 @@ if (!isset($user) or $user["accesslevel"] != 100 or $user["id"] == $_GET["user_i
 echo "user ID ".$_GET["user_id"]." and accesslevel ".$_GET["accesslevel"];
 
 // get info of specified user
-$user_id = $quote->$_GET["user_id"];
+$user_id = $quote->{$_GET["user_id"]};
 
 $finduser = $db->query("
 	select
@@ -36,7 +36,7 @@ if (!$finduser->num_rows) {
 }
 
 // update user
-$accesslevel = $quote->$_GET["accesslevel"];
+$accesslevel = $quote->{$_GET["accesslevel"]};
 
 $updateuser = "
 	update entities
@@ -55,7 +55,7 @@ if($db->affected_rows) {
 	$change_type = "'accesslevel changed to ".$_GET["accesslevel"]."'";
 
 	// get id of user who is doing the modifying
-	$modifier_entity_id = $quote->$user["id"];
+	$modifier_entity_id = $quote->{$user["id"]};
 
 	// add audit record
 	$db->query("insert into user_modifications (user_id, modifier_entity_id, change_type) values ($user_id, $modifier_entity_id, $change_type)");
