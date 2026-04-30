@@ -74,7 +74,7 @@ if (!$client->isAccessTokenExpired()) {
 
 	// check for user in db
 	// grab their group memberships while we're at it
-	$email = $quote->$user["email"];
+	$email = $quote->{$user["email"]};
 	$usercheck = $db->query("
 		select
 			e.id,
@@ -105,7 +105,7 @@ if (!$client->isAccessTokenExpired()) {
 		// add user to entities db
 		// accesslevel will default to "10" ("0" = deactivated user; "10" = regular user; "100" = superuser)
 		// type will default to "user"
-		$name = $quote->$user["name"];
+		$name = $quote->{$user["name"]};
 		$db->query("insert into entities (name, email) values ($name, $email)");
 
 		// populate membership and other user information for use later in page
@@ -114,7 +114,7 @@ if (!$client->isAccessTokenExpired()) {
 		$user["accesslevel"] = 10;
 
 		// add user to "Everyone" group
-		$entity_id_quoted = $quote->$user["id"];
+		$entity_id_quoted = $quote->{$user["id"]};
 		$db->query("insert into memberships (entity_id, group_id) values ($entity_id_quoted, '1')");
 	}
 }
