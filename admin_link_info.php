@@ -8,7 +8,7 @@ if (!isset($user) or empty($_GET["id"]) or !is_numeric($_GET["id"])) {
 }
 
 // just to be safe, prep link id for db use
-$id = $quote->$_GET["id"];
+$id = $quote->{$_GET["id"]};
 
 // get link info
 $link = $db->query("
