@@ -1,25 +1,29 @@
 <?php
 require "admin_functions.php";
 
+// 2026-04-29: disabling this slow, outdated query that we're not even really using on this page any longer
 // get current links
-$links = $db->query("
-	select
-		l.id,
-		l.path,
-		l.target,
-		l.notes,
-		e.email as createdby,
-		l.owner,
-		coalesce(nullif(o.email,''), o.name) as owner_name,
-		l.active,
-		(select count(*) from hits where link_id = l.id) as hits,
-        (select count(*) from links as dupes where dupes.path = l.path and dupes.id != l.id and dupes.active is true) as active_duplicate
-	from
-		links as l
-		inner join entities as e on l.createdby = e.id
-		inner join entities as o on l.owner = o.id
-	order by l.path asc, l.created desc
-	");
+// $links = $db->query("
+// 	select
+// 		l.id,
+// 		l.path,
+// 		l.target,
+// 		l.notes,
+// 		e.email as createdby,
+// 		l.owner,
+// 		coalesce(nullif(o.email,''), o.name) as owner_name,
+// 		l.active,
+// 		(select count(*) from hits where link_id = l.id) as hits,
+//         (select count(*) from links as dupes where dupes.path = l.path and dupes.id != l.id and dupes.active is true) as active_duplicate
+// 	from
+// 		links as l
+// 		inner join entities as e on l.createdby = e.id
+// 		inner join entities as o on l.owner = o.id
+// 	order by l.path asc, l.created desc
+// 	");
+
+// get link count
+$number_of_links = (int) $db->query("select count(*) from links")->fetch_column();
 
 // get group entities
 $groups = $db->query("
@@ -110,7 +114,7 @@ else {
 		Links
 	</h1>
 	<p>
-		<strong>Total links: <? echo $links->num_rows ?></strong>
+		<strong>Total links: <? echo $number_of_links ?></strong>
 	</p>
 	<p>
 		<a href="admin_link_list.php">View links</a>
