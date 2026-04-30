@@ -139,7 +139,36 @@ if (isset($_SERVER['REQUEST_URI']) and strlen($_SERVER['REQUEST_URI']) < 513 and
 	}
 }
 
-// do forwarding
+// ///////////// //
+// do forwarding //
+// ///////////// //
+
+// set up various variables to send to the attribution logging system
+// also check for the 'did' cookie, the presence of which indicates that the Spruce backend has seen this visitor's device before
+$requestUrl   = 'https://l.sprucehealth.com' . $_SERVER['REQUEST_URI'];
+$cookieHeader = $_SERVER['HTTP_COOKIE'] ?? '';
+$hasDid       = isset($_COOKIE['did']) && $_COOKIE['did'] !== '';
+
+if ($hasDid) {
+    // if this is a known device, do the redirect first and then send the attribution data in the background, so the user gets to their destination immediately
+    //
+    // Note: after fastcgi_finish_request(), error_log() writes only land if
+    // php.ini's `error_log` directive points at a file path. The default
+    // SAPI logger is detached once the request is finalized, so failure logs
+    // from this background task would be silently dropped. Verify ops has
+    // `error_log = /var/log/php-attribution.log` (or similar) configured.
+    header("Location: $redirect_url");
+    if (function_exists('fastcgi_finish_request')) {
+        fastcgi_finish_request();
+    }
+    ignore_user_abort(true);
+    spruceReportAttribution($requestUrl, $cookieHeader);
+    exit;
+}
+
+// if this is NOT a known device, the backend will mint a 'did' cookie and Set-Cookie it.
+// we then need to relay that header to the user before redirecting, otherwise this first click will be unattributable. Adds ~50–200 ms to the first click only.
+spruceReportAttribution($requestUrl, $cookieHeader);
 header("Location: $redirect_url");
 exit();
 ?>
