@@ -108,9 +108,9 @@ if (isset($_SERVER['REQUEST_URI']) and strlen($_SERVER['REQUEST_URI']) < 513 and
 		}
 
 		// record hit in db
-		$link_id = $quote->$row["id"];
-		$user_agent = $quote->$_SERVER["HTTP_USER_AGENT"];
-		$ip = $quote->$_SERVER["REMOTE_ADDR"];
+		$link_id = $quote->{$row["id"]};
+		$user_agent = $quote->{$_SERVER["HTTP_USER_AGENT"]};
+		$ip = $quote->{$_SERVER["REMOTE_ADDR"]};
 		$hostname = $quote->{gethostbyaddr($_SERVER["REMOTE_ADDR"])};
 		$incoming_query_string = $quote->$incoming_query_string;
 
