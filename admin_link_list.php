@@ -34,7 +34,11 @@ if (isset($_GET["order_by"]) and $_GET["order_by"] == "datedesc") {
 }
 
 // get count of matching links
-$number_of_links = $db->query("select id from links")->num_rows;
+// $result = $db->query("select count(*) from links");
+// $row = $result->fetch_row();
+// $number_of_links = (int)$row;
+$number_of_links = (int) $db->query("select count(*) from links")->fetch_column();
+$debugvar .= "fox ".$number_of_links."\\n"; // debug tracer
 
 // get current links
 $links = $db->query("
@@ -48,12 +52,25 @@ $links = $db->query("
 		l.owner,
 		coalesce(nullif(o.email,''), o.name) as owner_name,
 		l.active,
-		(select count(*) from hits where link_id = l.id) as hits,
-        (select count(*) from links as dupes where dupes.path = l.path and dupes.id != l.id and dupes.active is true) as active_duplicate
+		coalesce(h.hit_count,0) as hits,
+        case when active_dupes.id is not null then 1 else 0 end as active_duplicate
 	from
 		links as l
-		inner join entities as e on l.createdby = e.id
-		inner join entities as o on l.owner = o.id
+	inner join entities as e
+		on l.createdby = e.id
+	inner join entities as o
+		on l.owner = o.id
+	left join (
+		select
+			link_id,
+			count(*) as hit_count
+		from hits group by link_id
+		) as h
+        on l.id = h.link_id
+    left join links as active_dupes
+    	on active_dupes.path = l.path
+    	and active_dupes.id != l.id
+    	and active_dupes.active is true
 	order by " . $order_by_sql . "
 	limit $links_per_page offset $start_offset
 	");
