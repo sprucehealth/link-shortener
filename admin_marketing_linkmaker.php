@@ -177,8 +177,6 @@ require "include_first.php";
 		</tr>
 	</table>
 
-	<!-- <input type="submit" value="Generate Link" id="submitbutton" /> -->
-
 	<table style="width: 100%; margin: 1em 0;" name="generatedlink_container">
 		<tr>
 			<th style="text-align: left;">
@@ -197,6 +195,30 @@ require "include_first.php";
 </div>
 
 <script>
+	// read URL parameters on page load and populate inputs
+	$(document).ready(function() {
+		var urlParams = new URLSearchParams(window.location.search);
+		var paramsFound = false;
+
+		var textFields = ['url', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+		textFields.forEach(function(field) {
+			if (urlParams.has(field)) {
+				$( "[name='" + field + "']" ).val(urlParams.get(field));
+				paramsFound = true;
+			}
+		});
+
+		if (urlParams.has('utm_handling')) {
+			$( "input[name='utm_handling'][value='" + urlParams.get('utm_handling') + "']" ).prop('checked', true);
+			paramsFound = true;
+		}
+
+		// if we populated any fields from the URL, trigger the link generation immediately
+		if (paramsFound) {
+			processMarketingLink();
+		}
+	});
+
 	function processMarketingLink() {
 		// // grab the URL value first to check it
 	    // var urlValue = $( "[name='url']" ).val();
@@ -207,19 +229,31 @@ require "include_first.php";
 	    //     return; // this exits the function early so no $.post happens
 	    // }
 
+		// Gather the current form data
+		var currentData = {
+			utm_handling: $( "input[name='utm_handling']:checked" ).val(),
+			url: $( "[name='url']" ).val(),
+			utm_source: $( "[name='utm_source']" ).val(),
+			utm_medium: $( "[name='utm_medium']" ).val(),
+			utm_campaign: $( "[name='utm_campaign']" ).val(),
+			utm_term: $( "[name='utm_term']" ).val(),
+			utm_content: $( "[name='utm_content']" ).val()
+		};
+
+		// Update the browser URL without reloading the page
+		var currentParams = new URLSearchParams();
+		for (var key in currentData) {
+			if (currentData[key] !== "") {
+				currentParams.set(key, currentData[key]);
+			}
+		}
+		window.history.replaceState(null, '', window.location.pathname + '?' + currentParams.toString());
+
 	    $.post(
 	        // post data to the page to process in PHP because I don't feel like doing it in javascript
 	        'admin_marketing_linkmaker.php',
 	        // put data into an object to send in post action
-	        {
-	            utm_handling: $( "input[name='utm_handling']:checked" ).val(),
-	            url: $( "[name='url']" ).val(),
-	            utm_source: $( "[name='utm_source']" ).val(),
-	            utm_medium: $( "[name='utm_medium']" ).val(),
-	            utm_campaign: $( "[name='utm_campaign']" ).val(),
-	            utm_term: $( "[name='utm_term']" ).val(),
-	            utm_content: $( "[name='utm_content']" ).val()
-	        },
+	        currentData,
 	        // process the returned data (write the generated URL to the page)
 	        function (data, status) {
 	            // show the generated-link container
