@@ -1,11 +1,12 @@
 <?php
-require "admin_functions.php";
+// for this page, it actually doesn't matter whether they're logged in
+// require "admin_functions.php";
 
-// halt if they're not logged in
-if (!isset($user)) {
-	header("Location: https://l.sprucehealth.com/admin.php");
-	exit();
-}
+// // halt if they're not logged in
+// if (!isset($user)) {
+// 	header("Location: https://l.sprucehealth.com/admin.php");
+// 	exit();
+// }
 
 // handle ajax POST request to generate a link, if POST data is present for such a request
 if (isset($_POST["utm_handling"]) and isset($_POST["url"])
@@ -59,6 +60,7 @@ if (isset($_POST["utm_handling"]) and isset($_POST["url"])
 }
 
 // start page output
+$pagetitle = "Marketing Linkmaker";
 require "include_first.php";
 
 ?>
