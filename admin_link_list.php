@@ -84,6 +84,9 @@ require "include_first.php";
 	Links
 </h1>
 <p>
+	<a href="admin.php">Return to link-shortener admin panel</a>
+</p>
+<p>
 	Page:
 		<?
 		for ($i=1; $i <= $pages; $i++) {
