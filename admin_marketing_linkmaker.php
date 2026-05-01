@@ -13,7 +13,7 @@ if (isset($_POST["utm_handling"]) and isset($_POST["url"])
 	and isset($_POST["utm_term"]) and isset($_POST["utm_content"])) {
 
 	// start by assuming that their URL is invalid
-	$generatedlink = "Enter a valid URL and your link will appear here.";
+	$generatedlink = "Enter a valid URL above, and your link will appear here.";
 
 	// start array of URL query parameters
 	// note: do NOT need to use htmlentities() here to encode values, as that encoding will happen via http_build_query() later
@@ -86,10 +86,10 @@ require "include_first.php";
 			</td>
 			<td>
 				<p>
-					Use camouflaged UTMs (e.g., "uca")
+					Use Spruce camouflaged UTMs (e.g., "uca")
 				</p>
 				<p>
-					<span class="note">Note: Default. These UTMs are recommended for links that point to Spruce properties, as they are less likely to be removed by privacy plugins and filters. However, they are unlikely to work outside of Spruce.</span>
+					<span class="note">Note: Default. These camouflaged UTMs are recommended for links that are on a Spruce domain, as they are less likely to be removed by privacy plugins and filters. However, these UTMs are specific to our systems and are unlikely to work for URLs that are outside of Spruce.</span>
 				</p>
 			</td>
 		</tr>
@@ -186,7 +186,7 @@ require "include_first.php";
 		<tr>
 			<td>
 				<p id="generatedlink" style="word-break: break-all;">
-					Enter a valid URL and your link will appear here.
+					Enter a valid URL above, and your link will appear here.
 				</p>
 				<input type="submit" value="Copy Link" id="copybutton" />
 			</td>
