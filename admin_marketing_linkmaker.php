@@ -42,7 +42,13 @@ if (isset($_POST["utm_handling"]) and isset($_POST["url"])
 
 		// if query parameters are present, append them
 		if (count($queryparams)) {
-			$generatedlink = $generatedlink . "?" . http_build_query($queryparams);
+			// determine whether a question mark or other joining mark is needed or already present in the submitted URL
+			$joiningmark = "?";
+			if (str_contains($_POST["url"], '?')) $joiningmark = "&";
+			if (str_ends_with($_POST["url"], '?')) $joiningmark = "";
+
+			// append query parameters
+			$generatedlink = $generatedlink . $joiningmark . http_build_query($queryparams);
 		}
 	}
 
