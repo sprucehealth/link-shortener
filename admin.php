@@ -52,7 +52,7 @@ if (!isset($user)) {
 else {
 	?>
 	<p>
-		Hi, <? echo $user["name"] ?>. You are logged in. New: <a href="admin_marketing_linkmaker2.php">Marketing Linkmaker 2.0</a> (or use <a href="admin_marketing_linkmaker.php">1.0</a>).
+		Hi, <? echo $user["name"] ?>. You are logged in.
 	</p>
 	<hr>
 	<?
@@ -70,7 +70,8 @@ else {
 			</p>
 			<p>
 				<strong>URL target:</strong>
-				<input type="text" name="target" size="100">
+				<input type="text" name="target" size="100"><br />
+				<span class="note">Note: Use the <a href="admin_marketing_linkmaker.php">Marketing Linkmaker</a> first, if you need to add UTMs to a URL.</span>
 			</p>
 			<p>
 				<strong>Notes:</strong>
