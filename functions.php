@@ -127,11 +127,13 @@ function spruceReportAttribution(string $requestUrl, string $cookieHeader): void
         $urlValue  = $scheme . '://' . $hostname . $pathname;
         $rawQuery  = $parsed['query'] ?? '';
 
-        // Build values: synthetic `url` first, then one entry per inbound query
+        // Build values: synthetic `url` first, then also store the synthetic URL in `utm_term` to piggyback on UTM attribution machinery in the Spruce backend
+        // then one entry per inbound query
         // param. Split the raw query string ourselves rather than using
         // parse_str(), which collapses repeated keys (the spec requires us to
         // emit one entry per occurrence).
         $values = [['key' => 'url', 'value' => $urlValue]];
+        $values[] = ['key' => 'utm_term', 'value' => $urlValue];
         if ($rawQuery !== '') {
             foreach (explode('&', $rawQuery) as $pair) {
                 if ($pair === '') {
