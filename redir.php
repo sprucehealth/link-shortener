@@ -1,4 +1,6 @@
 <?php
+// die if the request is not a useful one (e.g., a robot or favicon request)
+if (in_array(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), ['/robots.txt', '/favicon.ico'])) exit;
 
 // establish db connection and other page-start things
 require "functions.php";
